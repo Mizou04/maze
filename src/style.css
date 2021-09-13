@@ -1,0 +1,59 @@
+*{
+    padding : 0;
+    margin : 0;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    width: 100vw;
+    display : flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, hsl(222, 100%, 90%), hsl(194, 80%, 95%));
+}
+
+#gameContainer{
+    height: 80%;
+    width: 40%;
+    border: 2px dodgerblue dashed;
+}
+.header{
+    width: 100%;
+    height: 50px;
+    box-shadow: 1px 1px 4px hsla(2, 2%, 2%, .2);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.header__element{
+    width: 50%;
+    height: 100%;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    /* background: navy; */
+}
+
+.header__element--btn{
+    color: white;
+    font-family: sans-serif;
+    font-stretch: condensed;
+    text-transform: capitalize;
+    padding: 5px 15px;
+    border: none;
+    background: linear-gradient(45deg, hsl(222, 100%, 50%), hsl(194, 80%, 50%));
+    box-shadow: 1px 1px 10px hsl(200, 100%, 50%);
+}
+.header__element--timer{
+    color: rgb(29, 15, 15);
+}
+
+#canvas{
+    width: 100%;
+    height: calc(100% - 50px);
+    /* background: hsl(2, 40%, 98%); */
+    background: linear-gradient(45deg, hsl(222, 100%, 97%), hsl(194, 80%, 97%));
+    border: 1px hsla(2, 2%, 2%, .2) solid;
+}
