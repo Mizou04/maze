@@ -38,7 +38,7 @@ export default class Game{
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.maze.draw(ctx);
         this.player.draw(ctx);
-        this.goal.draw(ctx);
+        // this.goal.draw(ctx);
     }
 
     pause(){

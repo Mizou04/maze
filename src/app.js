@@ -19,9 +19,9 @@ function controller(){
           
     
     function update(e){
-        if(e.key !== "r" && e.key !== "l" && e.key !== "b" && e.key !== "t") return;
-        game.player.move(e.key, ctx);
-        game.update(ctx);
+            if(e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+            game.player.move(e.key, ctx);
+            game.update(ctx);
         // game.goal.isAchieved = true;
         // game.goal.isAchieved && game.win();
     }
@@ -49,6 +49,7 @@ function controller(){
     // window.requestAnimationFrame(controller);
     
 }
-
 controller();
+
+
 // requestAnimationFrame(controller);
