@@ -1,8 +1,4 @@
-import Character from "./components/character/character.js"
-import {Size, Coordinates} from "./utils/helpers.js"
 import Game from "./components/game/game.js"
-import { mazeMap } from "./components/maze/map.maze.js";
-
 
 function controller(){
     const timer = document.querySelector(".header__element--timer");
@@ -10,27 +6,47 @@ function controller(){
     const pauseResumeBtn = document.querySelector(".header__element--btn")
     const canvas = document.querySelector("canvas");
           canvas.width = canvas.clientWidth; 
-          canvas.height = canvas.clientHeight; 
+          canvas.height = canvas.width; 
     const ctx = canvas.getContext("2d");
           ctx.beginPath();
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const game = new Game("pending", ctx);
-          game.update(ctx)
+    let game = new Game("pending", ctx);
+         game.update(ctx);
           
     
-    function update(e){
+    let update = (e) =>{
+            e.preventDefault();
             if(e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
             game.player.move(e.key, ctx);
+            
+            window.removeEventListener("keydown", update, false);
+            setTimeout(()=>{
+                window.addEventListener("keydown", update, false)
+            }, 0)
             game.update(ctx);
-        // game.goal.isAchieved = true;
-        // game.goal.isAchieved && game.win();
+            if(game.win()){
+                game.pause();
+                highScores.push({name : prompt("your name?"), score : parseInt(1 / timer.innerHTML * 1000) })
+                localStorage.setItem("HIGH_SCORES", JSON.stringify([...highScores].sort((a,b)=> - a.score + b.score)));
+                
+                window.removeEventListener("keydown", update, false);
+                let newGame = confirm("play again?");
+                if(newGame){
+                    game = new Game("pending", ctx);
+                    game.update(ctx);
+                } else {
+                    newGame = confirm("play again?")
+                }
+                
+            }
     }
     
-    window.addEventListener("keydown", update, false);
-    
-    window.onresize = e => {
-          ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-          game.update(ctx);
+    window.addEventListener("keydown", update, false);    
+
+    window.onresize = () => {
+        canvas.width = canvas.clientWidth; 
+        canvas.height = canvas.clientHeight; 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        game.update(ctx);
     }
 
     pauseResumeBtn.addEventListener("click", (e)=>{
@@ -45,11 +61,8 @@ function controller(){
             window.addEventListener("keydown", update, false)
         }
     })
-    // window.onblur = game.pause;
-    // window.requestAnimationFrame(controller);
     
 }
 controller();
 
 
-// requestAnimationFrame(controller);

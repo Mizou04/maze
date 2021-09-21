@@ -1,69 +1,82 @@
-import { Coordinates, Size } from "../../utils/helpers.js";
-import { mazeMap } from "../maze/map.maze.js";
 import Character from "./character.js"
 
 
 export default class Player extends Character{
-    constructor(size, coordinates){
-        super(size, coordinates);
-        this.lastPosition = null;
-        this.step = Math.floor(this.size.width / 7);
-        
-        this.player_image = new Image();
-        this.player_image.src = "./player_minotaur.png"
+    constructor(size, coordinates, imgSrc){
+        super(size, coordinates, imgSrc);
+        this.step = Math.floor(this.size.width / 10);
+        this.flipped = false;
     }
     
     draw(ctx){
-        ctx.strokeStyle = "blue";
-        ctx.lineWidth = 3;
-        this.player_image.onload = e =>{
-            ctx.drawImage(this.player_image , 0, 0, this.size.width, this.size.height, this.coordinates.x , this.coordinates.y, this.size.width, this.size.height);
+        let avatar = new Image();
+        avatar.src = this.imgSrc;
+
+        function flipHorizontally(context, around) {
+            context.translate(around, 0);
+            context.scale(-1, 1);
+            context.translate(-around, 0);
+            }
+
+            this.clear(ctx);
+        avatar.onload = (e) =>{
+            if(!this.flipped){
+                ctx.restore();
+                ctx.drawImage(avatar, 180, 40, avatar.width - 300, avatar.height - 70, this.coordinates.x , this.coordinates.y, this.size.width, this.size.height);
+            } else {
+                ctx.save();
+                flipHorizontally(ctx, this.coordinates.x + this.size.width / 2);
+                ctx.drawImage(avatar, 180, 40, avatar.width - 300, avatar.height - 70, this.coordinates.x , this.coordinates.y, this.size.width, this.size.height);
+                ctx.restore();
+            }
         }
-        ctx.strokeRect(this.coordinates.x, this.coordinates.y, this.size.width, this.size.height)
-        // ctx.drawImage()
     }
 
     move(key, ctx){
-        ctx.clearRect(this.coordinates.x, this.coordinates.y, this.size.width, this.size.height);
+        this.clear(ctx);
         let collision = 0; // 1 means collision is present. 0 means collision is absent.
      
         
-        const checkCollision = () =>{
-            let img, imgData;       
+        const checkCollision = (key) =>{
+            let img, imgData, i;       
             switch(key){
                 case "ArrowRight":
                     img = ctx.getImageData(this.coordinates.x + this.size.width, this.coordinates.y, 1, this.size.height);
                     imgData = img.data;
-                    for(let i = 3; i < imgData.length ; i+=4){
+                    for(i = 3; i < imgData.length ; i+=4){
                         if(imgData[i] > 0 && imgData[i - 3] == 0){
                             collision = 1;
+                            break;
                         }
                     }
                     break;
                 case "ArrowLeft":
                     img = ctx.getImageData(this.coordinates.x, this.coordinates.y, 1 , this.size.height);
                     imgData = img.data;
-                    for(let i = 3; i < imgData.length ; i+=4){
+                    for(i = 3; i < imgData.length ; i+=4){
                         if(imgData[i] > 0 && imgData[i - 3] == 0){
                             collision = 1;
+                            break;
                         }
                     }
                     break;
                 case "ArrowUp":
                     img = ctx.getImageData(this.coordinates.x, this.coordinates.y, this.size.width , 1);
                     imgData = img.data;
-                    for(let i = 3; i < imgData.length ; i+=4){
+                    for(i = 3; i < imgData.length ; i+=4){
                         if(imgData[i] > 0 && imgData[i - 3] == 0){
                             collision = 1;
+                            break;
                         }
                     }
                     break;
                 case "ArrowDown":
                     img = ctx.getImageData(this.coordinates.x, this.coordinates.y + this.size.height, this.size.width , 1);
                     imgData = img.data;
-                    for(let i = 3; i < imgData.length ; i+=4){
+                    for(i = 3; i < imgData.length ; i+=4){
                         if(imgData[i] > 0 && imgData[i - 3] == 0){
                             collision = 1;
+                            break;
                         }
                     }
                     break;
@@ -74,7 +87,8 @@ export default class Player extends Character{
             case "ArrowRight" : // right
                 if(this.coordinates.x + this.size.width + 10 <= parseInt(ctx.canvas.clientWidth)){
                     this.coordinates.x += this.step;
-                    checkCollision();
+                    this.flipped = false;
+                    checkCollision(key);
                     if(collision == 1){
                         this.coordinates.x -= this.step;
                         collision = 0;
@@ -85,7 +99,7 @@ export default class Player extends Character{
             case "ArrowUp" : // top
                 if(this.coordinates.y - this.size.height / 4 >= 0){
                     this.coordinates.y -= this.step;
-                    checkCollision();
+                    checkCollision(key);
                     if(collision == 1){
                         this.coordinates.y += this.step;
                         collision = 0;
@@ -95,8 +109,11 @@ export default class Player extends Character{
 
             case "ArrowLeft" : // left
                 if(this.coordinates.x - 6 >= 0){
-                    this.coordinates.x -= this.step;
-                    checkCollision();
+                    this.flipped = true;
+                    if(this.flipped){
+                        this.coordinates.x -= this.step;
+                    }
+                    checkCollision(key);
                     if(collision == 1){
                         this.coordinates.x += this.step;
                         collision = 0;
@@ -105,9 +122,9 @@ export default class Player extends Character{
             break;
 
             case "ArrowDown" : // bottom 
-                if(this.coordinates.y + this.size.height <= parseInt(ctx.canvas.clientHeight)){
+                if((this.coordinates.y) <= parseInt(ctx.canvas.clientHeight)){
                     this.coordinates.y += this.step;
-                    checkCollision();
+                    checkCollision(key);
                     if(collision == 1){
                         this.coordinates.y -= this.step;
                         collision = 0;
@@ -116,9 +133,9 @@ export default class Player extends Character{
             break;
         }
 
-
     }
-
+    clear(ctx){
+        ctx.clearRect(this.coordinates.x, this.coordinates.y, this.size.width, this.size.height)
+    }
 }
 
-// new Player(new Size(120, 120), new Coordinates(10, 20))
