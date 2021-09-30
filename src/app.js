@@ -1,23 +1,33 @@
+import StartPage from "../views/beforeStart/beforeStart.js";
+import HighscoresPage from "../views/highscores/highscore.js";
+import MainPage from "../views/main/main.js";
 import Game from "./components/game/game.js"
+let container = document.querySelector(".canvasContainer");
 
 function controller(){
     const timer = document.querySelector(".header__element--timer");
     const highScores = JSON.parse(window.localStorage.getItem("HIGH_SCORES")) || [];
-    const pauseResumeBtn = document.querySelector(".header__element--btn")
-    const canvas = document.querySelector("canvas");
-          canvas.width = canvas.clientWidth; 
-          canvas.height = canvas.width; 
-    const ctx = canvas.getContext("2d");
-          ctx.beginPath();
-    let game = new Game("pending", ctx);
-         game.update(ctx);
-          
+    const pauseResumeBtn = document.querySelector(".header__element--btn");
+    let canvas = document.createElement("canvas");
+    // const canvas = document.querySelector("#canvas");
+    canvas.id = "canvas";
+    container.innerHTML = canvas.outerHTML;
+    // canvas = canvas
+    let game;
     
+    canvas.width = container.clientWidth; 
+    canvas.height = canvas.width; 
+    const ctx = canvas.getContext("2d");
+    game = new Game("pending", ctx);
+        game.update(ctx);
+        ctx.beginPath();
+          
+    console.log(canvas)
     let update = (e) =>{
             e.preventDefault();
             if(e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+            game.win()
             game.player.move(e.key, ctx);
-            
             window.removeEventListener("keydown", update, false);
             setTimeout(()=>{
                 window.addEventListener("keydown", update, false)
@@ -25,7 +35,7 @@ function controller(){
             game.update(ctx);
             if(game.win()){
                 game.pause();
-                highScores.push({name : prompt("your name?"), score : parseInt(1 / timer.innerHTML * 1000) })
+                highScores.push({name : prompt("your name?") || "Player", score : parseInt(1 / timer.innerHTML * 1000) })
                 localStorage.setItem("HIGH_SCORES", JSON.stringify([...highScores].sort((a,b)=> - a.score + b.score)));
                 
                 window.removeEventListener("keydown", update, false);
@@ -63,6 +73,32 @@ function controller(){
     })
     
 }
-controller();
+// controller();
 
 
+import viewInterface from "./interfaceComponent.js";
+
+viewInterface.addStrategy(
+    new MainPage("mainPage", "Main page"),
+    new HighscoresPage("highscoresPage", "Highscores"),
+    new StartPage("startPage", "Starting the Game"),
+)
+
+let pages = viewInterface;
+// console.log(page.returnBtn.outerHTML)
+container.innerHTML = pages.getStrategy("mainPage").outerHTML;
+
+container.addEventListener("click", e=>{
+    if(e.target.classList.contains("page__main--button-start")){
+        container.innerHTML = pages.getStrategy("startPage").outerHTML
+    };
+    if(e.target.classList.contains("page__startpage--button")){
+        // container.innerHTML = pages.getStrategy("startPage").outerHTML
+    };
+    if(e.target.classList.contains("page--button-back")){
+        container.innerHTML = pages.getStrategy("mainPage").outerHTML
+    };
+    if(e.target.classList.contains("page__main--button-highscores")){
+        container.innerHTML = pages.getStrategy("highscoresPage").outerHTML
+    }
+})
